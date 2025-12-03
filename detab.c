@@ -3,6 +3,7 @@
 #define MAXLINE 1000
 
 void detab (char s [], int tabwidth, int lim);
+void entab (char s [], int tabwidth, int lim);
 int main ()
 {
 	int i, c, max;
@@ -12,7 +13,7 @@ int main ()
 	{
 		input [i] = c;
 	}
-	detab (input, 8, max);
+	entab (input, 8, max);
 	printf ("\nDe-tabbed:\n%s\n", input);
 	return 0;
 }
@@ -49,4 +50,56 @@ void detab (char s [], int tabwidth, int lim)
 		++j;
 	}
 	s [j+1] = '\0';
+}
+
+void entab (char s [], int tabwidth, int lim)
+{
+	int column = 0;
+	int pos = 0;
+	int consecutive = 0;
+	int i, j;
+	char t [lim];
+	for (i = 0; i < lim && s [i] != '\0'; ++i)
+	{
+		t [i] = s [i];
+	}
+	t [i] = '\0';
+	for (i = 0; t[i] != '\0' && i < lim; ++i)
+	{
+		switch (t [i])
+		{
+			case ' ':
+				++consecutive;
+				++column;
+				if (consecutive == tabwidth|| column % tabwidth == 0)
+				{
+					pos -= consecutive - 1;
+					s [pos] = '\t';
+					++pos;
+					consecutive = 0;
+				}
+				else 
+				{
+					s [pos] = t [i];
+					++pos;
+				}
+				break;
+			case '\t':
+				column += (tabwidth - (column % tabwidth));
+				s [pos] = t [i];
+				++pos;
+				break;
+			case '\n':
+				column = 0;
+				s [pos] = t [i];
+				++pos;
+				break;
+			default:
+				consecutive = 0;
+				s [pos] = t [i];
+				++column;
+				++pos;
+		}
+	}
+	s [pos+1] = '\0';
 }
