@@ -1,58 +1,64 @@
 #include <stdio.h>
 #define MAXLINE 1000
 
-int getlines(char line[], int maxline);
-void copy(char to[], char from[]);
-void reverse(char line[], int lim);
+int max;
+char line[MAXLINE];
+char longest[MAXLINE];
+
+int getlines();
+void copy();
+void reverse();
 
 int main() {
-    int len, max;
-    char line[MAXLINE];
-    char longest[MAXLINE];
+    int len;
+    extern int max;
+    extern char longest[];
 
     max = 0;
-    while ((len = getlines(line, MAXLINE)) > 0) {
+    while ((len = getlines()) > 0) {
 	if (len > max) {
 	    max = len;
-	    copy(longest, line);
+	    copy();
 	}
     }
-    if (max > 0)
-	{
-		printf("Longest %d: %s\n", max, longest);
-		reverse (longest, max);
-		printf("Reversed: %s\n", longest);
-	}
+    if (max > 0) {
+	printf("Longest %d: %s\n", max, longest);
+	reverse();
+	printf("Reversed: %s\n", longest);
+    }
     return 0;
 }
 
-int getlines(char s[], int lim) {
+int getlines() {
     int c, i;
+    extern char line[];
 
-    for (i = 0; i < lim - 1 && (c = getchar()) != EOF && c != '\n'; ++i)
-	s[i] = c;
+    for (i = 0; i < MAXLINE - 1 && (c = getchar()) != EOF && c != '\n'; ++i)
+	line[i] = c;
     if (c == '\n') {
-	s[i] = c;
+	line[i] = c;
 	++i;
     }
-    s[i] = '\0';
+    line[i] = '\0';
     return i;
 }
 
-void copy(char to[], char from[]) {
+void copy() {
     int i = 0;
-    while ((to[i] = from[i]) != '\0') ++i;
+	extern char line [], longest [];
+    while ((longest[i] = line[i]) != '\0') ++i;
 }
 
-void reverse(char s[], int lim) {
-    char t[lim];
+void reverse() {
+	extern int max;
+	extern char longest [];
+    char t[max];
     int i, j;
-	i = lim - 2;
-    for (j = 0; j < lim; ++j) {
-		t[j] = s[i];
-		--i;
+    i = max - 2;
+    for (j = 0; j < max; ++j) {
+	t[j] = longest[i];
+	--i;
     }
-	t [lim - 1] = '\0';
-	for (i = 0; i < lim; ++i)
-		s[i] = t[i];
+    t[max - 1] = '\0';
+    for (i = 0; i < max; ++i) longest[i] = t[i];
 }
