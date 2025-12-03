@@ -16,7 +16,7 @@ int main ()
 	{
 		input [i] = c;
 	}
-	fold (input, 80, max);
+	fold (input, 10, max);
 	printf ("\nFolded:\n%s\n", input);
 	return 0;
 }

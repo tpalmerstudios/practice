@@ -31,8 +31,8 @@ void detab (char s [], int tabwidth, int lim)
 
 void fold (char s [], int linelength, int lim)
 {
-	int i, j, length, whiteloc;
-	int pos = j = whiteloc = 0;
+	int i, j, length, whiteloc, whitepos;
+	int pos = j = whiteloc = whitepos = 0;
 	char t [lim];
 	for (i = 0; i < lim && s[i] != '\0'; ++i)
 	{
@@ -46,11 +46,12 @@ void fold (char s [], int linelength, int lim)
 		{
 			pos = -1; // for the increment at the end
 			s [j] = t [i];
-			whiteloc = 0;
+			whiteloc = whitepos = 0;
 		}
 		else if (t [i] == ' ' || t [i] == '\t')
 		{
 			whiteloc = j;
+			whitepos = pos;
 			s [j] = t [i];
 		}
 		//normal
@@ -63,21 +64,17 @@ void fold (char s [], int linelength, int lim)
 			if (whiteloc != 0)
 			{
 				s [whiteloc] = '\n';
-				pos -= whiteloc;
+				pos = (pos - whitepos) - 1;
 			}
 			else
 			{
-				s [j - 3] = ' ';
-				s [j - 2] = '-';
-				s [j - 1] = ' ';
+				s [j - 2] = ' ';
+				s [j - 1] = '-';
 				s [j] = '\n';
-				pos = 0;
-				// Bug is here. Because i is negative it gets overwritten on the next loop
+				pos = -1;
 				i -= 4;
-				printf ("No whiteloc. Fold at %d\n", i);
 			}
-			// after using it reset
-			whiteloc = 0;
+			whiteloc = whitepos = 0;
 		}
 		++j;
 		++pos;
