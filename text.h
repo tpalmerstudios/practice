@@ -31,8 +31,8 @@ void detab (char s [], int tabwidth, int lim)
 
 void fold (char s [], int linelength, int lim)
 {
-	int i, length, whiteloc;
-	int pos = whiteloc = 0;
+	int i, j, length, whiteloc;
+	int pos = j = whiteloc = 0;
 	char t [lim];
 	for (i = 0; i < lim && s[i] != '\0'; ++i)
 	{
@@ -40,27 +40,23 @@ void fold (char s [], int linelength, int lim)
 	}
 	t [i] = '\0';
 	length = i;
-	printf ("t string in fold: %s", t);
 	for (i = 0; i < length; ++i)
 	{
 		if (t [i] == '\n')
 		{
 			pos = -1; // for the increment at the end
-			s [i] = t [i];
-			putchar (s [i]);
+			s [j] = t [i];
 			whiteloc = 0;
 		}
 		else if (t [i] == ' ' || t [i] == '\t')
 		{
-			whiteloc = i;
-			s [i] = t [i];
-			putchar (s [i]);
+			whiteloc = j;
+			s [j] = t [i];
 		}
 		//normal
 		 else if (pos < linelength)
 		{
-			s [i] = t [i];
-			putchar (s [i]);
+			s [j] = t [i];
 		}
 		else
 		{
@@ -68,21 +64,22 @@ void fold (char s [], int linelength, int lim)
 			{
 				s [whiteloc] = '\n';
 				pos -= whiteloc;
-				printf ("Found whiteloc at %d\n", whiteloc);
 			}
 			else
 			{
-				s [i - 3] = ' ';
-				s [i - 2] = '-';
-				s [i - 1] = ' ';
-				s [i] = '\n';
+				s [j - 3] = ' ';
+				s [j - 2] = '-';
+				s [j - 1] = ' ';
+				s [j] = '\n';
 				pos = 0;
-				i -= 3;
+				// Bug is here. Because i is negative it gets overwritten on the next loop
+				i -= 4;
 				printf ("No whiteloc. Fold at %d\n", i);
 			}
 			// after using it reset
 			whiteloc = 0;
 		}
+		++j;
 		++pos;
 	}
 	s [i] = '\0';
