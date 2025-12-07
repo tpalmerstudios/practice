@@ -1,3 +1,48 @@
+void reverse (char s[], int lim)
+{
+	char t[lim];
+	int i, j;
+	i = lim - 2;
+	for (j = 0; j < lim; ++j)
+		{
+			t[j] = s[i];
+			--i;
+		}
+	t[lim - 1] = '\0';
+	for (i = 0; i < lim; ++i)
+		s[i] = t[i];
+}
+
+// returns location of next char
+int nextChar (char s[], int i, char c, int lim)
+{
+	while (s[i] != '\0' && i < lim)
+		{
+			if (s[i] == c)
+				return i;
+			++i;
+		}
+
+	return 0;
+}
+
+int isPrepend (char s[], int i, char c, int lim)
+{
+	if (i > lim - 1 || i < 0)
+		return -1;
+	if (s[i - 1] == c)
+		return 1;
+	return 0;
+}
+int isPostpend (char s[], int i, char c, int lim)
+{
+	if (i > lim - 2 || i < 0)
+		return -1;
+	if (s[i + 1] == c)
+		return 1;
+	return 0;
+}
+
 void detab (char s[], int tabwidth, int lim)
 {
 	int i;
@@ -31,6 +76,121 @@ void detab (char s[], int tabwidth, int lim)
 	s[j + 1] = '\0';
 }
 
+void skipComments (char s[], int lim)
+{
+	char t[lim];
+	int i, j, k;
+	char c;
+	int isSpecial;
+	// Flags that tell if I'm currently in one
+	struct Flags
+	{
+		int dQuote;
+		int sQuote;
+		int sComment;
+		int bComment;
+		int nl;
+		char parStack [100];
+	};
+	// Probably make the sruct global as well as the initialization
+	struct Flags f = {0, 0, 0, 0, 0, ""};
+	for (i = 0; i < lim && s[i] != '\0'; ++i)
+		{
+			t[i] = s[i];
+		}
+	t[i] = '\0';
+
+	j = k = 0;
+	// Loop through each char of the string
+	for (i = 0; t[i] != '\0'; ++i)
+		{
+			// Current char
+			c = t[i];
+			// Honestly don't understand the syntax of this line
+			// Does isSpecial become a bool? or does it equal what c is?
+			isSpecial = (c == '"' || c == '\'' || c == '/' || c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')');
+			if (c == '\n' || (isSpecial && isPrepend (t, i, '\\', lim) != 1))
+				{
+					switch (c)
+						{
+						case '"':
+							if (f.dQuote)
+								f.dQuote = 0;
+							else if (!f.sQuote && !f.dQuote && !f.sComment &&
+									 !f.bComment)
+								f.dQuote = 1;
+							break;
+						case '\'':
+							if (f.sQuote)
+								f.sQuote = 0;
+							else if (!f.sQuote && !f.dQuote && !f.sComment &&
+									 !f.bComment)
+								f.sQuote = 1;
+							break;
+						case '/':
+							if (f.bComment && isPrepend (t, i, '*', lim) == 1)
+							{
+								f.bComment = 0;
+								// This could probably be done cleaner, but when I set blockcomment to 0 the final '/' is added to the string
+								++i;
+							}
+							else if (isPostpend (t, i, '/', lim) == 1 &&
+								!f.dQuote && !f.sQuote && !f.bComment && !f.sComment)
+								f.sComment = 1;
+							if (isPostpend (t, i, '*', lim) == 1 &&
+								!f.dQuote && !f.sQuote && !f.bComment && !f.sComment)
+								f.bComment = 1;
+							break;
+						case '\n':
+							f.sComment = 0;
+							++f.nl;
+							break;
+							// I should make this a new function with the global flags
+						case '(':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+								f.parStack [k++] = c;
+							break;
+						case ')':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+							{
+								if (k > 0 && f.parStack [--k] != '(')
+									printf ("Error: Unclosed Parenthesis at Line %d\n", f.nl+1);
+							}
+							break;
+						case '[':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+								f.parStack [k++] = c;
+							break;
+						case ']':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+							{
+								if (k > 0 && f.parStack [--k] != '[')
+									printf ("Error: Unclosed Parenthesis at Line %d\n", f.nl+1);
+							}
+							break;
+						case '{':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+								f.parStack [k++] = c;
+							break;
+						case '}':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+							{
+								if (k > 0 && f.parStack [--k] != '{')
+									printf ("Error: Unclosed Parenthesis at Line %d\n", f.nl+1);
+							}
+							break;
+						}
+				}
+			if (!f.bComment && !f.sComment)
+				{
+					s[j] = t[i];
+					++j;
+				}
+		}
+	s[j] = '\0';
+	if (k != 0)
+		printf ("Unclosed Parenthesis, Brackets, or Braces\n");
+}
 void fold (char s[], int linelength, int lim)
 {
 	int i, j, length, whiteloc, whitepos;
@@ -130,61 +290,4 @@ void entab (char s[], int tabwidth, int lim)
 			++pos;
 		}
 	s[pos] = '\0';
-}
-
-void reverse (char s[], int lim)
-{
-	char t[lim];
-	int i, j;
-	i = lim - 2;
-	for (j = 0; j < lim; ++j)
-		{
-			t[j] = s[i];
-			--i;
-		}
-	t[lim - 1] = '\0';
-	for (i = 0; i < lim; ++i)
-		s[i] = t[i];
-}
-
-// returns location of next char
-int nextChar (char s[], int i, char c, int lim)
-{
-	while (s[i] != '\0' && i < lim)
-		{
-			if (s[i] == c)
-				return i;
-			++i;
-		}
-
-	return 0;
-}
-
-int isPrepend (char s[], int i, char c, int lim)
-{
-	if (i > lim - 1 || i < 0)
-		return -1;
-	if (s[i - 1] == c)
-		return 1;
-	return 0;
-}
-int isPostpend (char s[], int i, char c, int lim)
-{
-	if (i > lim - 2 || i < 0)
-		return -1;
-	if (s[i + 1] == c)
-		return 1;
-	return 0;
-}
-
-void skipComments (char s[], int lim)
-{
-	// copy loop to t
-	// Loop to find next ", ', / not prepended with \ and /* and // and \n and */
-	// switch case if none of the others are flag
-	// set flag of in quote single or comment
-	// quote -> s ++j
-	// single -> s ++j
-	// singleline \n stops flag save loc of start. no ++j
-	// block */ stops flag no ++j
 }

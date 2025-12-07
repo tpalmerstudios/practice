@@ -7,6 +7,10 @@ void detab (char s [], int tabwidth, int lim);
 void entab (char s [], int tabwidth, int lim);
 void reverse (char s [], int lim);
 void fold (char s [], int linelength, int lim);
+void skipComments (char s[], int lim);
+int isPostpend (char s[], int i, char c, int lim);
+int isPrepend (char s[], int i, char c, int lim);
+
 int main ()
 {
 	int i, c, max;
@@ -16,8 +20,9 @@ int main ()
 	{
 		input [i] = c;
 	}
-	fold (input, 10, max);
-	printf ("\nFolded:\n%s\n", input);
+	skipComments (input, max); 
+
+	printf ("\nSkipped Comments:\n%s\n", input);
 	return 0;
 }
 
