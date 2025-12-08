@@ -1,21 +1,22 @@
 /**
  * @file text.c
- * @brief Driver showcasing text utility routines for formatting and comment stripping.
+ * @brief Driver showcasing text utility routines for formatting and comment
+ * stripping.
  */
 
-#include <stdio.h>
 #include "text.h"
+#include <stdio.h>
 
 #define MAXLINE 1000
 
 /** @brief Replace tabs with spaces in the supplied buffer. */
-void detab (char s [], int tabwidth, int lim);
+void detab (char s[], int tabwidth, int lim);
 /** @brief Convert appropriate runs of spaces back to tabs. */
-void entab (char s [], int tabwidth, int lim);
+void entab (char s[], int tabwidth, int lim);
 /** @brief Reverse the given buffer in place. */
-void reverse (char s [], int lim);
+void reverse (char s[], int lim);
 /** @brief Fold long lines using the configured line length. */
-void fold (char s [], int linelength, int lim);
+void fold (char s[], int linelength, int lim);
 /** @brief Remove C-style comments while respecting quoted literals. */
 void skipComments (char s[], int lim);
 /** @brief Check for a trailing character relative to an index. */
@@ -34,17 +35,17 @@ int isPrepend (char s[], int i, char c, int lim);
  */
 int main ()
 {
-        int i, c, max;
-        max = MAXLINE;
-        char input [MAXLINE];
-        for (i = 0; i < max && (c = getchar ()) != EOF; ++i)
-        {
-                input [i] = c;
-        }
-        skipComments (input, max);
+	int i, c, max;
+	max = MAXLINE;
+	char input[MAXLINE];
+	for (i = 0; i < max && (c = getchar ()) != EOF; ++i)
+		{
+			input[i] = c;
+		}
+	skipComments (input, max);
 
-        printf ("\nSkipped Comments:\n%s\n", input);
-        return 0;
+	printf ("\nSkipped Comments:\n%s\n", input);
+	return 0;
 }
 
 // lim must be larger than true size to allow for conversion and extra chars
