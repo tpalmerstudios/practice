@@ -252,6 +252,96 @@ void skipComments (char s[], int lim)
         s[j] = '\0';
         if (k != 0)
                 printf ("Unclosed Parenthesis, Brackets, or Braces\n");
+	j = k = 0;
+	// Loop through each char of the string
+	for (i = 0; t[i] != '\0'; ++i)
+		{
+			// Current char
+			c = t[i];
+			// Honestly don't understand the syntax of this line
+			// Does isSpecial become a bool? or does it equal what c is?
+			isSpecial = (c == '"' || c == '\'' || c == '/' || c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')');
+			if (c == '\n' || (isSpecial && isPrepend (t, i, '\\', lim) != 1))
+				{
+					switch (c)
+						{
+						case '"':
+							if (f.dQuote)
+								f.dQuote = 0;
+							else if (!f.sQuote && !f.dQuote && !f.sComment &&
+									 !f.bComment)
+								f.dQuote = 1;
+							break;
+						case '\'':
+							if (f.sQuote)
+								f.sQuote = 0;
+							else if (!f.sQuote && !f.dQuote && !f.sComment &&
+									 !f.bComment)
+								f.sQuote = 1;
+							break;
+						case '/':
+							if (f.bComment && isPrepend (t, i, '*', lim) == 1)
+							{
+								f.bComment = 0;
+								// This could probably be done cleaner, but when I set blockcomment to 0 the final '/' is added to the string
+								++i;
+							}
+							else if (isPostpend (t, i, '/', lim) == 1 &&
+								!f.dQuote && !f.sQuote && !f.bComment && !f.sComment)
+								f.sComment = 1;
+							if (isPostpend (t, i, '*', lim) == 1 &&
+								!f.dQuote && !f.sQuote && !f.bComment && !f.sComment)
+								f.bComment = 1;
+							break;
+						case '\n':
+							f.sComment = 0;
+							++f.nl;
+							break;
+							// I should make this a new function with the global flags
+						case '(':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+								f.parStack [k++] = c;
+							break;
+						case ')':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+							{
+								if (k > 0 && f.parStack [--k] != '(')
+									printf ("Error: Unclosed Parenthesis at Line %d\n", f.nl+1);
+							}
+							break;
+						case '[':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+								f.parStack [k++] = c;
+							break;
+						case ']':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+							{
+								if (k > 0 && f.parStack [--k] != '[')
+									printf ("Error: Unclosed Bracket at Line %d\n", f.nl+1);
+							}
+							break;
+						case '{':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+								f.parStack [k++] = c;
+							break;
+						case '}':
+							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+							{
+								if (k > 0 && f.parStack [--k] != '{')
+									printf ("Error: Unclosed Brace at Line %d\n", f.nl+1);
+							}
+							break;
+						}
+				}
+			if (!f.bComment && !f.sComment)
+				{
+					s[j] = t[i];
+					++j;
+				}
+		}
+	s[j] = '\0';
+	if (k != 0)
+		printf ("Unclosed Parenthesis, Brackets, or Braces\n");
 }
 
 /**
