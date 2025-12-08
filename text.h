@@ -165,7 +165,7 @@ void skipComments (char s[], int lim)
 							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
 							{
 								if (k > 0 && f.parStack [--k] != '[')
-									printf ("Error: Unclosed Parenthesis at Line %d\n", f.nl+1);
+									printf ("Error: Unclosed Bracket at Line %d\n", f.nl+1);
 							}
 							break;
 						case '{':
@@ -176,7 +176,7 @@ void skipComments (char s[], int lim)
 							if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
 							{
 								if (k > 0 && f.parStack [--k] != '{')
-									printf ("Error: Unclosed Parenthesis at Line %d\n", f.nl+1);
+									printf ("Error: Unclosed Brace at Line %d\n", f.nl+1);
 							}
 							break;
 						}
