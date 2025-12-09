@@ -23,19 +23,19 @@
  * @param s   Target string to reverse.
  * @param lim Maximum length of the buffer, including the null terminator.
  */
-void reverse (char s[], int lim)
+void
+reverse (char s[], int lim)
 {
 	char t[lim];
-	int i, j;
+	int	 i, j;
 	i = lim - 2;
 	for (j = 0; j < lim; ++j)
-		{
-			t[j] = s[i];
-			--i;
-		}
+		t[j] = s[i--];
 	t[lim - 1] = '\0';
 	for (i = 0; i < lim; ++i)
+	{
 		s[i] = t[i];
+	}
 }
 
 /**
@@ -48,14 +48,17 @@ void reverse (char s[], int lim)
  * @return Index of the next matching character or 0 if not found before the
  * limit.
  */
-int nextChar (char s[], int i, char c, int lim)
+int
+nextChar (char s[], int i, char c, int lim)
 {
 	while (s[i] != '\0' && i < lim)
+	{
+		if (s[i] == c)
 		{
-			if (s[i] == c)
-				return i;
-			++i;
+			return i;
 		}
+		++i;
+	}
 
 	return 0;
 }
@@ -70,12 +73,17 @@ int nextChar (char s[], int i, char c, int lim)
  * @return 1 when the preceding character matches, 0 when it does not, and -1 on
  * out-of-range input.
  */
-int isPrepend (char s[], int i, char c, int lim)
+int
+isPrepend (char s[], int i, char c, int lim)
 {
 	if (i > lim - 1 || i < 0)
+	{
 		return -1;
+	}
 	if (s[i - 1] == c)
+	{
 		return 1;
+	}
 	return 0;
 }
 
@@ -89,12 +97,17 @@ int isPrepend (char s[], int i, char c, int lim)
  * @return 1 when the following character matches, 0 when it does not, and -1 on
  * out-of-range input.
  */
-int isPostpend (char s[], int i, char c, int lim)
+int
+isPostpend (char s[], int i, char c, int lim)
 {
 	if (i > lim - 2 || i < 0)
+	{
 		return -1;
+	}
 	if (s[i + 1] == c)
+	{
 		return 1;
+	}
 	return 0;
 }
 
@@ -105,36 +118,34 @@ int isPostpend (char s[], int i, char c, int lim)
  * @param tabwidth Number of spaces representing a tab stop.
  * @param lim      Maximum length of the buffer.
  */
-void detab (char s[], int tabwidth, int lim)
+void
+detab (char s[], int tabwidth, int lim)
 {
-	int i;
-	int j = 0;
+	int	 i;
+	int	 j = 0;
 	char t[lim];
 	for (i = 0; i < lim && s[i] != '\0'; ++i)
-		{
-			t[i] = s[i];
-		}
+	{
+		t[i] = s[i];
+	}
 	t[i] = '\0';
 
 	for (i = 0; t[i] != '\0' && i < lim; ++i)
+	{
+		if (t[i] == '\t')
 		{
-			if (t[i] == '\t')
-				{
-					do
-						{
-							s[j] = ' ';
-							++j;
-						}
-					while ((j % tabwidth) != 0);
-					--j; // This was the bug. I was counting for both space +
-						 // tabs
-				}
-			else
-				{
-					s[j] = t[i];
-				}
-			++j;
+			do
+				s[j++] = ' ';
+			while ((j % tabwidth) != 0);
+			--j; // This was the bug. I was counting for both space +
+				 // tabs
 		}
+		else
+		{
+			s[j] = t[i];
+		}
+		++j;
+	}
 	s[j + 1] = '\0';
 }
 
@@ -147,243 +158,206 @@ void detab (char s[], int tabwidth, int lim)
  * @param s   Buffer containing the source text to clean.
  * @param lim Maximum length of the buffer.
  */
-void skipComments (char s[], int lim)
+void
+skipComments (char s[], int lim)
 {
-	char t[lim];
-	int i, j, k;
-	char c;
-	int isSpecial;
+	char c, t[lim];
+	int	 i, j, k, isSpecial;
 	// Flags that tell if I'm currently in one
 	struct Flags
 	{
-		int dQuote;
-		int sQuote;
-		int sComment;
-		int bComment;
-		int nl;
+		int	 dQuote;
+		int	 sQuote;
+		int	 sComment;
+		int	 bComment;
+		int	 nl;
 		char parStack[100];
 	};
 	// Probably make the sruct global as well as the initialization
 	struct Flags f = {0, 0, 0, 0, 0, ""};
 	for (i = 0; i < lim && s[i] != '\0'; ++i)
-		{
-			t[i] = s[i];
-		}
+		t[i] = s[i];
 	t[i] = '\0';
 
 	j = k = 0;
 	// Loop through each char of the string
 	for (i = 0; t[i] != '\0'; ++i)
+	{
+		// Current char
+		c = t[i];
+		isSpecial = (c == '"' || c == '\'' || c == '/' || c == '[' || c == ']' || c == '{'
+					 || c == '}' || c == '(' || c == ')');
+		if (c == '\n' || (isSpecial && isPrepend (t, i, '\\', lim) != 1))
 		{
-			// Current char
-			c = t[i];
-			// Honestly don't understand the syntax of this line
-			// Does isSpecial become a bool? or does it equal what c is?
-			isSpecial =
-				(c == '"' || c == '\'' || c == '/' || c == '[' || c == ']' ||
-				 c == '{' || c == '}' || c == '(' || c == ')');
-			if (c == '\n' || (isSpecial && isPrepend (t, i, '\\', lim) != 1))
+			switch (c)
+			{
+			case '"':
+				if (f.dQuote)
+					f.dQuote = 0;
+				else if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.dQuote = 1;
+				break;
+			case '\'':
+				if (f.sQuote)
+					f.sQuote = 0;
+				else if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.sQuote = 1;
+				break;
+			case '/':
+				if (f.bComment && isPrepend (t, i, '*', lim) == 1)
 				{
-					switch (c)
-						{
-						case '"':
-							if (f.dQuote)
-								f.dQuote = 0;
-							else if (!f.sQuote && !f.dQuote && !f.sComment &&
-									 !f.bComment)
-								f.dQuote = 1;
-							break;
-						case '\'':
-							if (f.sQuote)
-								f.sQuote = 0;
-							else if (!f.sQuote && !f.dQuote && !f.sComment &&
-									 !f.bComment)
-								f.sQuote = 1;
-							break;
-						case '/':
-							if (f.bComment && isPrepend (t, i, '*', lim) == 1)
-								{
-									f.bComment = 0;
-									// This could probably be done cleaner, but
-									// when I set blockcomment to 0 the final
-									// '/' is added to the string
-									++i;
-								}
-							else if (isPostpend (t, i, '/', lim) == 1 &&
-									 !f.dQuote && !f.sQuote && !f.bComment &&
-									 !f.sComment)
-								f.sComment = 1;
-							if (isPostpend (t, i, '*', lim) == 1 && !f.dQuote &&
-								!f.sQuote && !f.bComment && !f.sComment)
-								f.bComment = 1;
-							break;
-						case '\n':
-							f.sComment = 0;
-							++f.nl;
-							break;
-							// I should make this a new function with the global
-							// flags
-						case '(':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								f.parStack[k++] = c;
-							break;
-						case ')':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								{
-									if (k > 0 && f.parStack[--k] != '(')
-										printf ("Error: Unclosed Parenthesis "
-												"at Line %d\n",
-												f.nl + 1);
-								}
-							break;
-						case '[':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								f.parStack[k++] = c;
-							break;
-						case ']':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								{
-									if (k > 0 && f.parStack[--k] != '[')
-										printf ("Error: Unclosed Bracket "
-												"at Line %d\n",
-												f.nl + 1);
-								}
-							break;
-						case '{':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								f.parStack[k++] = c;
-							break;
-						case '}':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								{
-									if (k > 0 && f.parStack[--k] != '{')
-										printf ("Error: Unclosed Brace "
-												"at Line %d\n",
-												f.nl + 1);
-								}
-							break;
-						}
+					f.bComment = 0;
+					// This could probably be done cleaner, but
+					// when I set blockcomment to 0 the final
+					// '/' is added to the string
+					++i;
 				}
-			if (!f.bComment && !f.sComment)
-				{
-					s[j] = t[i];
-					++j;
-				}
+				else if (isPostpend (t, i, '/', lim) == 1 && !f.dQuote && !f.sQuote && !f.bComment
+						 && !f.sComment)
+					f.sComment = 1;
+				if (isPostpend (t, i, '*', lim) == 1 && !f.dQuote && !f.sQuote && !f.bComment
+					&& !f.sComment)
+					f.bComment = 1;
+				break;
+			case '\n':
+				f.sComment = 0;
+				++f.nl;
+				break;
+				// I should make this a new function with the global
+				// flags
+			case '(':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.parStack[k++] = c;
+				break;
+			case ')':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					if (k > 0 && f.parStack[--k] != '(')
+						printf (
+							"Error: Unclosed Parenthesis "
+							"at Line %d\n",
+							f.nl + 1);
+				break;
+			case '[':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.parStack[k++] = c;
+				break;
+			case ']':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					if (k > 0 && f.parStack[--k] != '[')
+						printf (
+							"Error: Unclosed Bracket "
+							"at Line %d\n",
+							f.nl + 1);
+				break;
+			case '{':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.parStack[k++] = c;
+				break;
+			case '}':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					if (k > 0 && f.parStack[--k] != '{')
+						printf (
+							"Error: Unclosed Brace "
+							"at Line %d\n",
+							f.nl + 1);
+				break;
+			}
 		}
+		if (!f.bComment && !f.sComment)
+			s[j++] = t[i];
+	}
 	s[j] = '\0';
 	if (k != 0)
+	{
 		printf ("Unclosed Parenthesis, Brackets, or Braces\n");
+	}
 	j = k = 0;
 	// Loop through each char of the string
 	for (i = 0; t[i] != '\0'; ++i)
+	{
+		// Current char
+		c = t[i];
+		isSpecial = (c == '"' || c == '\'' || c == '/' || c == '[' || c == ']' || c == '{'
+					 || c == '}' || c == '(' || c == ')');
+		if (c == '\n' || (isSpecial && isPrepend (t, i, '\\', lim) != 1))
 		{
-			// Current char
-			c = t[i];
-			// Honestly don't understand the syntax of this line
-			// Does isSpecial become a bool? or does it equal what c is?
-			isSpecial =
-				(c == '"' || c == '\'' || c == '/' || c == '[' || c == ']' ||
-				 c == '{' || c == '}' || c == '(' || c == ')');
-			if (c == '\n' || (isSpecial && isPrepend (t, i, '\\', lim) != 1))
+			switch (c)
+			{
+			case '"':
+				if (f.dQuote)
+					f.dQuote = 0;
+				else if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.dQuote = 1;
+				break;
+			case '\'':
+				if (f.sQuote)
+					f.sQuote = 0;
+				else if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.sQuote = 1;
+				break;
+			case '/':
+				if (f.bComment && isPrepend (t, i, '*', lim) == 1)
 				{
-					switch (c)
-						{
-						case '"':
-							if (f.dQuote)
-								f.dQuote = 0;
-							else if (!f.sQuote && !f.dQuote && !f.sComment &&
-									 !f.bComment)
-								f.dQuote = 1;
-							break;
-						case '\'':
-							if (f.sQuote)
-								f.sQuote = 0;
-							else if (!f.sQuote && !f.dQuote && !f.sComment &&
-									 !f.bComment)
-								f.sQuote = 1;
-							break;
-						case '/':
-							if (f.bComment && isPrepend (t, i, '*', lim) == 1)
-								{
-									f.bComment = 0;
-									// This could probably be done cleaner, but
-									// when I set blockcomment to 0 the final
-									// '/' is added to the string
-									++i;
-								}
-							else if (isPostpend (t, i, '/', lim) == 1 &&
-									 !f.dQuote && !f.sQuote && !f.bComment &&
-									 !f.sComment)
-								f.sComment = 1;
-							if (isPostpend (t, i, '*', lim) == 1 && !f.dQuote &&
-								!f.sQuote && !f.bComment && !f.sComment)
-								f.bComment = 1;
-							break;
-						case '\n':
-							f.sComment = 0;
-							++f.nl;
-							break;
-							// I should make this a new function with the global
-							// flags
-						case '(':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								f.parStack[k++] = c;
-							break;
-						case ')':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								{
-									if (k > 0 && f.parStack[--k] != '(')
-										printf ("Error: Unclosed Parenthesis "
-												"at Line %d\n",
-												f.nl + 1);
-								}
-							break;
-						case '[':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								f.parStack[k++] = c;
-							break;
-						case ']':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								{
-									if (k > 0 && f.parStack[--k] != '[')
-										printf ("Error: Unclosed Bracket at "
-												"Line %d\n",
-												f.nl + 1);
-								}
-							break;
-						case '{':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								f.parStack[k++] = c;
-							break;
-						case '}':
-							if (!f.sQuote && !f.dQuote && !f.sComment &&
-								!f.bComment)
-								{
-									if (k > 0 && f.parStack[--k] != '{')
-										printf ("Error: Unclosed Brace at Line "
-												"%d\n",
-												f.nl + 1);
-								}
-							break;
-						}
+					f.bComment = 0;
+					// This could probably be done cleaner, but
+					// when I set blockcomment to 0 the final
+					// '/' is added to the string
+					++i;
 				}
-			if (!f.bComment && !f.sComment)
-				{
-					s[j] = t[i];
-					++j;
-				}
+				else if (isPostpend (t, i, '/', lim) == 1 && !f.dQuote && !f.sQuote && !f.bComment
+						 && !f.sComment)
+					f.sComment = 1;
+				if (isPostpend (t, i, '*', lim) == 1 && !f.dQuote && !f.sQuote && !f.bComment
+					&& !f.sComment)
+					f.bComment = 1;
+				break;
+			case '\n':
+				f.sComment = 0;
+				++f.nl;
+				break;
+				// I should make this a new function with the global
+				// flags
+			case '(':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.parStack[k++] = c;
+				break;
+			case ')':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					if (k > 0 && f.parStack[--k] != '(')
+						printf (
+							"Error: Unclosed Parenthesis "
+							"at Line %d\n",
+							f.nl + 1);
+				break;
+			case '[':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.parStack[k++] = c;
+				break;
+			case ']':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					if (k > 0 && f.parStack[--k] != '[')
+						printf (
+							"Error: Unclosed Bracket at "
+							"Line %d\n",
+							f.nl + 1);
+				break;
+			case '{':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					f.parStack[k++] = c;
+				break;
+			case '}':
+				if (!f.sQuote && !f.dQuote && !f.sComment && !f.bComment)
+					if (k > 0 && f.parStack[--k] != '{')
+						printf (
+							"Error: Unclosed Brace at Line "
+							"%d\n",
+							f.nl + 1);
+				break;
+			}
 		}
+		if (!f.bComment && !f.sComment)
+			s[j++] = t[i];
+	}
 	s[j] = '\0';
 	if (k != 0)
 		printf ("Unclosed Parenthesis, Brackets, or Braces\n");
@@ -399,56 +373,53 @@ void skipComments (char s[], int lim)
  * @param linelength Desired maximum line length.
  * @param lim        Maximum buffer length.
  */
-void fold (char s[], int linelength, int lim)
+void
+fold (char s[], int linelength, int lim)
 {
-	int i, j, length, whiteloc, whitepos;
-	int pos = j = whiteloc = whitepos = 0;
+	int	 i, j, length, whiteloc, whitepos;
+	int	 pos = j = whiteloc = whitepos = 0;
 	char t[lim];
 	for (i = 0; i < lim && s[i] != '\0'; ++i)
-		{
-			t[i] = s[i];
-		}
-	t[i] = '\0';
+		t[i] = s[i];
+	t[i]   = '\0';
 	length = i;
 	for (i = 0; i < length; ++i)
+	{
+		if (t[i] == '\n')
 		{
-			if (t[i] == '\n')
-				{
-					pos = -1; // for the increment at the end
-					s[j] = t[i];
-					whiteloc = whitepos = 0;
-				}
-			else if (t[i] == ' ' || t[i] == '\t')
-				{
-					whiteloc = j;
-					whitepos = pos;
-					s[j] = t[i];
-				}
-			// normal
-			else if (pos < linelength)
-				{
-					s[j] = t[i];
-				}
-			else
-				{
-					if (whiteloc != 0)
-						{
-							s[whiteloc] = '\n';
-							pos = (pos - whitepos) - 1;
-						}
-					else
-						{
-							s[j - 2] = ' ';
-							s[j - 1] = '-';
-							s[j] = '\n';
-							pos = -1;
-							i -= 4;
-						}
-					whiteloc = whitepos = 0;
-				}
-			++j;
-			++pos;
+			pos		 = -1; // for the increment at the end
+			s[j]	 = t[i];
+			whiteloc = whitepos = 0;
 		}
+		else if (t[i] == ' ' || t[i] == '\t')
+		{
+			whiteloc = j;
+			whitepos = pos;
+			s[j]	 = t[i];
+		}
+		// normal
+		else if (pos < linelength)
+			s[j] = t[i];
+		else
+		{
+			if (whiteloc != 0)
+			{
+				s[whiteloc] = '\n';
+				pos			= (pos - whitepos) - 1;
+			}
+			else
+			{
+				s[j - 2] = ' ';
+				s[j - 1] = '-';
+				s[j]	 = '\n';
+				pos		 = -1;
+				i -= 4;
+			}
+			whiteloc = whitepos = 0;
+		}
+		++j;
+		++pos;
+	}
 	s[i] = '\0';
 }
 
@@ -459,51 +430,48 @@ void fold (char s[], int linelength, int lim)
  * @param tabwidth Tab stop width used to align output.
  * @param lim      Maximum buffer length.
  */
-void entab (char s[], int tabwidth, int lim)
+void
+entab (char s[], int tabwidth, int lim)
 {
-	int column = 0;
-	int pos = 0;
-	int consecutive = 0;
-	int i;
+	int	 column		 = 0;
+	int	 pos		 = 0;
+	int	 consecutive = 0;
+	int	 i;
 	char t[lim];
 	for (i = 0; i < lim - 1 && s[i] != '\0'; ++i)
-		{
-			t[i] = s[i];
-		}
+		t[i] = s[i];
 	t[i] = '\0';
 	for (i = 0; t[i] != '\0' && i < lim; ++i)
+	{
+		switch (t[i])
 		{
-			switch (t[i])
-				{
-				case ' ':
-					++consecutive;
-					++column;
-					if (consecutive == tabwidth || column % tabwidth == 0)
-						{
-							pos -= consecutive - 1;
-							s[pos] = '\t';
-							consecutive = 0;
-						}
-					else
-						{
-							s[pos] = t[i];
-						}
-					break;
-				case '\t':
-					column += (tabwidth - (column % tabwidth));
-					s[pos] = t[i];
-					break;
-				case '\n':
-					column = 0;
-					s[pos] = t[i];
-					break;
-				default:
-					consecutive = 0;
-					s[pos] = t[i];
-					++column;
-				}
-			++pos;
+		case ' ':
+			++consecutive;
+			++column;
+			if (consecutive == tabwidth || column % tabwidth == 0)
+			{
+				pos -= consecutive - 1;
+				s[pos]		= '\t';
+				consecutive = 0;
+			}
+			else
+				s[pos] = t[i];
+			break;
+		case '\t':
+			column += (tabwidth - (column % tabwidth));
+			s[pos] = t[i];
+			break;
+		case '\n':
+			column = 0;
+			s[pos] = t[i];
+			break;
+		default:
+			consecutive = 0;
+			s[pos]		= t[i];
+			++column;
 		}
+		++pos;
+	}
 	s[pos] = '\0';
 }
 
