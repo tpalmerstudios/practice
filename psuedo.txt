@@ -1,0 +1,30 @@
+FUNCTION analyze_input_stream(input_source):
+
+    DECLARE array word_length_counts[0..20]
+    SET all elements of word_length_counts to 0
+
+    DECLARE current_word_length = 0
+
+    WHILE there is more data in input_source:
+        READ next character c
+
+        IF c is an alphabetic character:
+            INCREMENT current_word_length
+
+        ELSE:
+            IF current_word_length > 0:
+                IF current_word_length > 20:
+                    SET current_word_length = 20
+                INCREMENT word_length_counts[current_word_length]
+                SET current_word_length = 0
+
+    IF current_word_length > 0:
+        IF current_word_length > 20:
+            SET current_word_length = 20
+        INCREMENT word_length_counts[current_word_length]
+
+    FOR length FROM 1 TO 20:
+        OUTPUT length, word_length_counts[length]
+
+END FUNCTION
+

@@ -91,3 +91,51 @@ inventoryValue (const struct Product *array, int count)
 		}
 	printf ("The total value of all inventory is: $%.2f\n", total);
 }
+
+void
+saveProducts (const struct Product *array, int count)
+{
+	FILE *fp = fopen ("inventory.dat", "wb");
+	if (!fp)
+		{
+			perror ("fopen");
+			return;
+		}
+	fwrite (&count, sizeof (int), 1, fp);
+	fwrite (array, sizeof (struct Product), count, fp);
+	fclose (fp);
+
+	printf ("Inventory saved %d items.\n", count);
+	return;
+}
+
+int
+loadProducts (struct Product *array, int maxCount)
+{
+	FILE *fp = fopen ("inventory.dat", "rb");
+	if (!fp)
+		{
+			printf ("Nothing Saved\n");
+			return 0;
+		}
+	int count = 0;
+	if (fread (&count, sizeof (int), 1, fp) != 1)
+		{
+			printf ("Error opening file.\n");
+			fclose (fp);
+			return 0;
+		}
+	if (count > maxCount)
+		{
+			count = maxCount;
+		}
+	if (fread (array, sizeof (struct Product), count, fp) != (size_t) count)
+		{
+			printf ("Error reading data\n");
+			fclose (fp);
+			return 0;
+		}
+	fclose (fp);
+	printf ("Loaded %d items from storage.\n", count);
+	return count;
+}

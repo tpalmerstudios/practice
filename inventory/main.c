@@ -5,7 +5,7 @@ int
 main (int argc, char *argv[])
 {
 	struct Product products[10];
-	int count = 0;
+	int count = loadProducts (products, 10);
 	int quit = 0;
 	char input;
 	while (!quit)
@@ -38,5 +38,7 @@ main (int argc, char *argv[])
 					break;
 				}
 		}
+	// saveProducts (products, count);
+	printf ("Inventory Saved. Exiting.\n");
 	return 0;
 }
