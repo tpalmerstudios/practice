@@ -1,3 +1,8 @@
+/*****************************************************
+ * This was in "mini-shell-en-C" created by theo-p38
+ * The repo was removed after I had modified this file.
+ * I don't have access to the rest of the repo
+ * ***************************************************/
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>

@@ -1,3 +1,5 @@
+So this is a combination of random programs I'm writing while learning. Currently working on backtracing algorithm for a sudoku solver. I'm feeling confident in my skills of reading others code. e.g. minishell is a french program off of github. I'll add a source later and properly fork it. Also feel pretty good about my program designs and APIs as well as some beginner algorithms. Need to work on network programming and signals as well as forking and multithreading. Possibly work on memory and dynamic allocation as well 
+
 # 🧠 Modular C Practice Tasks
 
 A curated list of small, single-purpose C programming tasks. Each one is scoped for focused practice—ideal for building real-world fluency without overwhelming complexity.

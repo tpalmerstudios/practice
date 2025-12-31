@@ -38,7 +38,7 @@ main (int argc, char *argv[])
 					break;
 				}
 		}
-	// saveProducts (products, count);
+	saveProducts (products, count);
 	printf ("Inventory Saved. Exiting.\n");
 	return 0;
 }
