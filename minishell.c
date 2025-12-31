@@ -15,61 +15,38 @@
 #include <unistd.h>
 
 #define NB_MAX_MOTS 30
-#define NB_MAX_CAR 4096
+#define MAXLENGTH 4096
 
 #define UNUSED(x) (void) (x)
 
 static void
 read_et_analyse_line (char *line, char *command[])
 {
-	// Empties previous line or garbage data
 	*line = '\0';
 
-	// gets line, and if null or empty line we exit
-	while (fgets (line, NB_MAX_MOTS, stdin) == NULL)
+	int i;
+
+	while (fgets (line, MAXLENGTH, stdin) != NULL)
+		if (feof (stdin))
+			{
+				printf ("\n");
+				exit (0);
+			}
+
+	char *fWord = line;
+	for (i = 0; *fWord && i < MAXWORD - 1; i++)
 		{
-			if (feof (stdin))
+			if (*fWord && !isspace (*fWord))
 				{
-					printf ("\n");
-					exit (0);
+					command[i] = fWord;
+					while (!isspace (*fWord))
+						fWord++;
+					*fWord = '\0';
 				}
+			else
+				while (*fWord && isspace (*fWord))
+					fWord++;
 		}
-
-	// copy line to debut
-	char *debut = line;
-
-	// move the first char to the nonspace characters
-	while (*debut && isspace (*debut))
-		debut++;
-
-	int i = 0;
-	// loop through the chars
-	//  assign commands to command
-	while (*debut && i < NB_MAX_MOTS - 1) // on laisse la place pour le NULL final
-		{
-			// first comand is the entire line minus leading whitespace
-			command[i] = debut;
-
-			// move the spot in debut to the next space
-			while (*debut && !isspace (*debut))
-				debut++;
-
-			// skip excess spacing
-
-			if (*debut && isspace (*debut))
-				{
-					// set it to null and move on
-					*debut = '\0';
-					debut++;
-					while (*debut && isspace (*debut))
-						debut++;
-				}
-
-			// why did we use a while loop?
-			++i;
-		}
-
-	// set the next command to null
 	command[i] = NULL;
 }
 
@@ -216,7 +193,7 @@ execute_command (char *command[], struct sigaction *sig)
 int
 main (void)
 {
-	char line[NB_MAX_CAR];
+	char line[MAXLENGTH];
 	char *command[NB_MAX_MOTS + 1];
 	// stdlib defined
 	struct sigaction m_sig;
