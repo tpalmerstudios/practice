@@ -19,7 +19,7 @@
 
 #define UNUSED(x) (void) (x)
 
-static void
+void
 read_et_analyse_line (char *line, char *command[])
 {
 	*line = '\0';
@@ -50,37 +50,26 @@ read_et_analyse_line (char *line, char *command[])
 	command[i] = NULL;
 }
 
-static void
+void
 affiche_invite (void)
 {
-	char *prompt, *ptr, *ptr2 = NULL;
+	char *getPtr = get_current_dir_name ();
+	if (!getPtr) exit (0);
 
-	// Get Current shows a warning, but man page says this is correct
-	prompt = get_current_dir_name ();
-	// dir name starts 1 after the last '/'
-	ptr2 = strrchr (prompt, '/');
-
-	ptr = ptr2;
-	ptr++;
-
-	putchar ('\n');
-	// prompt is the current directory + '."
-	printf ("%s>", ptr);
+	printf ("\n%s> ", strrchr (getPtr, '/') + 1);
 	fflush (stdout);
 	// must free
-	free (prompt);
+	free (getPtr);
 }
 
-static void
+void
 traite_signal (int signal_recu)
 {
-
 	UNUSED (signal_recu);
 	affiche_invite ();
 }
 
-// Start signal management
-static void
+void
 initialiser_gestion_signaux (struct sigaction *sig)
 {
 	sig->sa_flags = SA_NOCLDSTOP;
@@ -91,21 +80,45 @@ initialiser_gestion_signaux (struct sigaction *sig)
 	sigaction (SIGINT, sig, NULL);
 }
 
-static void
+int
+runInternal (char *command[], int *error)
+{
+	struct internals
+	{
+		char selfExec = { "cd" };
+		int count = 1;
+	};
+	int i;
+
+	for (i = 0; i < count; i++)
+	{
+	}
+	return 0;
+}
+
+void
 execute_command (char *command[], struct sigaction *sig)
 {
-	if (!command[0])
-		return;
+	int *errorCode;
+	if (runInternal (command, errorCode))
+		{
+		}
+}
+
+void
+execute_command (char *command[], struct sigaction *sig)
+{
+	if (!command[0]) return;
 
 	/***********************
 	 * My new structure
 	 * if command 0 == internal func, execute in separate func
-	 * else execute as described. 
+	 * else execute as described.
 	 *
 	 * ideally we add a path variable
 	 * ********************/
-	// lets create a list of internal functions we will handle and then execute them in a different function
-	// cd shouldn't be done here
+	// lets create a list of internal functions we will handle and then execute them in a different
+	// function cd shouldn't be done here
 	else if (!strcmp (command[0], "cd"))
 		{
 			int argc = 0;
@@ -157,7 +170,7 @@ execute_command (char *command[], struct sigaction *sig)
 			sigaction (SIGINT, sig, NULL);
 
 			res_f = fork ();
-			// Child gets new. 
+			// Child gets new.
 
 			if (res_f == -1)
 				{
