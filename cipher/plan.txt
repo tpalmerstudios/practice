@@ -1,0 +1,108 @@
+Basically create a bitwise shift based on a password. Ideally we have some length of password and for each character of the text to encrypt, we rotate which character of the password we use to hide the plain text. The algorithm will be based on a center value. Any password character higher than that central char will bitwise shift a character in plaintext to the right. And any lower shift to the left. This seems easy to RE, though, so maybe if we add some kind of variance where we take the position into account?
+
+for (int i = 0; i < strlen (password); i++)
+{
+	char middle = 'n';
+	int shiftAmount = plainText [j] - middle;
+	// Do the actual shift
+	encryptText[j] = 
+}
+
+sudoku solver
+given [9][9] structs of cells
+deductive and bruteforce
+given a number to check
+
+horizontal line algo
+for (int i = 0; i < 9; i++)
+{
+	contained = 0;
+	for (int j = 0; j < 9; j++)
+	{
+		if (board [i][j] == value)
+			contained = 1;
+	}
+	if (contained)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			board [i][j].candidateArray [value - '0' - 1] = 0;
+		}
+		candidateChanged = 1;
+	}
+}
+
+
+vertical line algo
+for (int i = 0; i < 9; i++)
+{
+	contained = 0;
+	for (int j = 0; j < 9; j++)
+	{
+		if (board [j][i] == value)
+			contained = 1;
+	}
+	if (contained)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			board [j][i].candidateArray [value - '0' - 1] = 0;
+		}
+		candidateChanged = 1;
+	}
+}
+
+family algo
+fixed set of 9 pairs of addresses
+loop to 3 plus in both directions
+
+// Find the 9 families, algo rather than hard coded to test myself
+for (int i = 0; i < 3; i++)
+{
+	for (int j = 0; j < 3; j++)
+	{
+		contained = 0;
+		for (int k = 0; k < 3; k++)
+		{
+			for (int l = 0; l < 3; l++)
+			{
+				if (board [i*3+k][j*3+l].value == value)
+				{
+					contained = 1;
+				}
+			}
+		}
+	}
+	if (contained)
+	{
+		for (int k = 0; k < 3; k++)
+		{
+			for (int l = 0; l < 3; l++)
+			{
+			board [i*3+k][j*3+l].candidateArray [value - '0' - 1] = 0;
+			}
+		}
+		candidateChanged = 1;
+	}
+}
+
+brute force
+for (int i = 0; i < 81; i++)
+{
+	if (board [i / 9][i % 9].solved == UNSOLVED)
+	{
+		for (int k = 0; k < 9; k++)
+		{
+			if (board [i/9][i%9].candidateArray[k])
+				{
+					pushDecision (i,k+'0'+1);
+					//checker is a recursive function that adds and removes from the stack, will work on algo next
+					if (!checker (attemptDeduct))
+					{
+						board [i/9][i%9].candidateArray[k] = 0;
+						popDecision ();
+					}
+				}
+		}
+	}
+}

@@ -1,0 +1,231 @@
+#include <ctype.h>
+#include <errno.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#define NB_MAX_MOTS 30
+#define NB_MAX_CAR 4096
+
+#define UNUSED(x) (void) (x)
+
+static void
+read_et_analyse_line (char *line, char *command[])
+{
+	// Empties previous line or garbage data
+	*line = '\0';
+
+	// gets line, and if null or empty line we exit
+	while (fgets (line, NB_MAX_MOTS, stdin) == NULL)
+		{
+			if (feof (stdin))
+				{
+					printf ("\n");
+					exit (0);
+				}
+		}
+
+	// copy line to debut
+	char *debut = line;
+
+	// move the first char to the nonspace characters
+	while (*debut && isspace (*debut))
+		debut++;
+
+	int i = 0;
+	// loop through the chars
+	//  assign commands to command
+	while (*debut && i < NB_MAX_MOTS - 1) // on laisse la place pour le NULL final
+		{
+			// first comand is the entire line minus leading whitespace
+			command[i] = debut;
+
+			// move the spot in debut to the next space
+			while (*debut && !isspace (*debut))
+				debut++;
+
+			// skip excess spacing
+
+			if (*debut && isspace (*debut))
+				{
+					// set it to null and move on
+					*debut = '\0';
+					debut++;
+					while (*debut && isspace (*debut))
+						debut++;
+				}
+
+			// why did we use a while loop?
+			++i;
+		}
+
+	// set the next command to null
+	command[i] = NULL;
+}
+
+static void
+affiche_invite (void)
+{
+	char *prompt, *ptr, *ptr2 = NULL;
+
+	// Get Current shows a warning, but man page says this is correct
+	prompt = get_current_dir_name ();
+	// dir name starts 1 after the last '/'
+	ptr2 = strrchr (prompt, '/');
+
+	ptr = ptr2;
+	ptr++;
+
+	putchar ('\n');
+	// prompt is the current directory + '."
+	printf ("%s>", ptr);
+	fflush (stdout);
+	// must free
+	free (prompt);
+}
+
+static void
+traite_signal (int signal_recu)
+{
+
+	UNUSED (signal_recu);
+	affiche_invite ();
+}
+
+// Start signal management
+static void
+initialiser_gestion_signaux (struct sigaction *sig)
+{
+	sig->sa_flags = SA_NOCLDSTOP;
+	sigemptyset (&sig->sa_mask);
+
+	// Signal Handler passed a pointer to a function
+	sig->sa_handler = traite_signal;
+	sigaction (SIGINT, sig, NULL);
+}
+
+static void
+execute_command (char *command[], struct sigaction *sig)
+{
+	if (!command[0])
+		return;
+
+	/***********************
+	 * My new structure
+	 * if command 0 == internal func, execute in separate func
+	 * else execute as described. 
+	 *
+	 * ideally we add a path variable
+	 * ********************/
+	// lets create a list of internal functions we will handle and then execute them in a different function
+	// cd shouldn't be done here
+	else if (!strcmp (command[0], "cd"))
+		{
+			int argc = 0;
+			while (command[argc])
+				argc++;
+			// How many parts of the command are there?
+
+			if (argc == 1)
+				{
+					if (chdir (getenv ("HOME")) == -1)
+						{
+							perror ("mini-shell: cd");
+						}
+				}
+			else if (argc == 2)
+				{
+					// Let's add in ~ expansion rather than assuming it's solo char
+					if (strcmp (command[1], "~") == 0)
+						{
+							strcpy (command[1], getenv ("HOME"));
+						}
+					if (chdir (command[1]) == -1)
+						{
+							perror ("mini-shell: cd");
+							if (errno == ENOENT)
+								{
+									fprintf (stderr, "Conseil : vÃ©rifiez que tous les "
+													 "rÃ©pertoires du chemin existent\n");
+								}
+							else if (errno == EACCES)
+								{
+									fprintf (stderr, "Conseil : vÃ©rifiez que vous pouvez accÃ©der "
+													 "Ã  tous les rÃ©pertoires du chemin\n");
+								}
+						}
+				}
+			else
+				{
+					// I think we could try to use the first arg rather than just failing
+					fprintf (stderr, "Error: too many arguments\n");
+				}
+		}
+	else
+		{
+			pid_t res_f;
+			int statut;
+
+			sig->sa_handler = SIG_IGN;
+			sigaction (SIGINT, sig, NULL);
+
+			res_f = fork ();
+			// Child gets new. 
+
+			if (res_f == -1)
+				{
+					perror ("mini-shell: fork");
+					exit (errno);
+				}
+
+			if (res_f == 0)
+				{
+					sig->sa_handler = SIG_DFL;
+					sigaction (SIGINT, sig, NULL);
+
+					if (execvp (command[0], command) == -1)
+						{
+							perror ("mini-shell: execvp");
+							exit (errno);
+						}
+				}
+			else
+				{
+					if (waitpid (res_f, &statut, 0) == -1)
+						{
+							perror ("mini-shell: waitpid");
+							exit (errno);
+						}
+
+					sig->sa_handler = traite_signal;
+					sigaction (SIGINT, sig, NULL);
+				}
+		}
+}
+
+int
+main (void)
+{
+	char line[NB_MAX_CAR];
+	char *command[NB_MAX_MOTS + 1];
+	// stdlib defined
+	struct sigaction m_sig;
+
+	initialiser_gestion_signaux (&m_sig);
+
+	while (true)
+		{
+			// Show prompt
+			affiche_invite ();
+			// Put commands into an array
+			read_et_analyse_line (line, command);
+			execute_command (command, &m_sig);
+		}
+
+	return EXIT_SUCCESS;
+}
