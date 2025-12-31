@@ -33,15 +33,14 @@ int isPrepend (char s[], int i, char c, int lim);
  *
  * @return Zero on successful completion.
  */
-int main ()
+int
+main ()
 {
 	int i, c, max;
 	max = MAXLINE;
 	char input[MAXLINE];
 	for (i = 0; i < max && (c = getchar ()) != EOF; ++i)
-		{
-			input[i] = c;
-		}
+		input[i] = c;
 	skipComments (input, max);
 
 	printf ("\nSkipped Comments:\n%s\n", input);

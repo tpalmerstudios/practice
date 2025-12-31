@@ -1,8 +1,9 @@
-#include <stdio.h>
-#include <limits.h>
 #include <float.h>
+#include <limits.h>
+#include <stdio.h>
 
-int main ()
+int
+main ()
 {
 	printf ("Bool Width: %d\n", BOOL_WIDTH);
 	printf ("Bool Max: %d\n", BOOL_MAX);
@@ -11,7 +12,7 @@ int main ()
 	printf ("Char Width: %d\n", CHAR_WIDTH);
 	printf ("Char Min Value: %d\n", CHAR_MIN);
 	printf ("Char Max Value: %d\n", CHAR_MAX);
-	
+
 	printf ("Signed Char Width: %d\n", SCHAR_WIDTH);
 	printf ("Short Width: %d\n", SHRT_WIDTH);
 	printf ("Int Width: %d\n", INT_WIDTH);

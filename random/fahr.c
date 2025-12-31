@@ -4,7 +4,8 @@
 int f2c (int f);
 int c2f (int c);
 
-int main ()
+int
+main ()
 {
 	int c, temp;
 	printf ("Temp Convertor\n");
@@ -15,7 +16,7 @@ int main ()
 	printf ("Temperature > ");
 
 	switch (c)
-	{
+		{
 		case '1':
 			printf ("Celsius temp is: %d\n", f2c (25));
 			break;
@@ -24,22 +25,20 @@ int main ()
 			break;
 		default:
 			return 0;
-	}
+		}
 	return 0;
 }
 
-int f2c (int f)
+int
+f2c (int f)
 {
-	int c;
-	c = 5 * ( f - 32) / 9;
-	if (c < MIN)
-		return 0;
+	int c = 5 * (f - 32) / 9;
+	if (c < MIN) return 0;
 	return c;
 }
 
-int c2f (int c)
+int
+c2f (int c)
 {
-	int f;
-	f = ((c * 9) / 5) + 32;
-	return f;
+	return ((c * 9) / 5) + 32;
 }
