@@ -1,12 +1,14 @@
 So this is a combination of random programs I'm writing while learning. Currently working on backtracing algorithm for a sudoku solver. I'm feeling confident in my skills of reading others code. e.g. minishell is a french program off of github. I'll add a source later and properly fork it. Also feel pretty good about my program designs and APIs as well as some beginner algorithms. Need to work on network programming and signals as well as forking and multithreading. Possibly work on memory and dynamic allocation as well 
 
-# 🧠 Modular C Practice Tasks
+Another thing I want to get back to is the K&R book then Berj and TCP/IP Illustrated &c.
 
-A curated list of small, single-purpose C programming tasks. Each one is scoped for focused practice—ideal for building real-world fluency without overwhelming complexity.
+# Modular C Practice Tasks
 
 ---
+- Build some kind of file parser for configs
+- Build an input parser
 
-## 🗃️ File & Data Handling
+## File & Data Handling
 
 1. **Struct to Binary** – Write a `Person` struct (name, age) to a binary file.
 2. **Binary to Struct** – Read the binary file and print each person.
@@ -19,7 +21,7 @@ A curated list of small, single-purpose C programming tasks. Each one is scoped 
 
 ---
 
-## 📡 Networking (Mockups or Real)
+##  Networking (Mockups or Real)
 
 9. **TCP Echo Server** – Accept a client and echo back all input.
 10. **TCP Client** – Connect to a server and send `"Hello"` string.
@@ -29,7 +31,7 @@ A curated list of small, single-purpose C programming tasks. Each one is scoped 
 
 ---
 
-## 📦 Memory and Structs
+##  Memory and Structs
 
 14. **Dynamic Int Array** – Create resizable array with `malloc` + `realloc`.
 15. **Nested Free** – Free a struct with internal heap pointers.
@@ -39,7 +41,7 @@ A curated list of small, single-purpose C programming tasks. Each one is scoped 
 
 ---
 
-## 🧠 Logic and Behavior
+##  Logic and Behavior
 
 19. **Find Duplicates** – From a list of `int`, print duplicates.
 20. **Hash Function** – Implement a basic hash function for strings.
@@ -49,7 +51,7 @@ A curated list of small, single-purpose C programming tasks. Each one is scoped 
 
 ---
 
-## 🧮 Algorithms and Parsing
+##  Algorithms and Parsing
 
 24. **Reverse String** – In-place string reversal.
 25. **Longest Word** – Return longest word in a sentence.
@@ -59,16 +61,16 @@ A curated list of small, single-purpose C programming tasks. Each one is scoped 
 
 ---
 
-## 🧪 Validation and Testing
+##  Validation and Testing
 
-29. **Is Integer?** – Check if string is a valid base-10 integer.
+29. **Is Integer?** – Check if string is a valid base-10 integer. This is almost done. Just modify one of the stoi functions
 30. **Login Mock** – Hardcoded username/password login system.
 31. **Email Validator** – Check for presence of `@` and `.` after.
 32. **Test Helper** – Implement `assert_equal()` for simple unit tests.
 
 ---
 
-## 🧰 System Utilities
+##  System Utilities
 
 33. **Time Function** – Measure time a function takes with `gettimeofday()`.
 34. **Print Env Vars** – List all environment variables.
@@ -77,9 +79,10 @@ A curated list of small, single-purpose C programming tasks. Each one is scoped 
 
 ---
 
-## 🧩 Misc & Utility
+##  Misc & Utility
 
 37. **PRNG w/ Seed** – Custom pseudo-random generator with user seed.
 38. **CLI Menu** – Menu system using `switch` and `scanf`.
 39. **Tokenizer** – Split a string on spaces or commas.
 40. **Run Tracker** – Save how many times program has been run (file counter).
+
