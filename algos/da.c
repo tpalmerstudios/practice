@@ -13,38 +13,33 @@
 
 #include "da.h"
 #include <stdlib.h>
+#include <string.h>
 
-void
-ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity)
+int
+ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t elementSize)
 {
-	if (da == NULL) return;
+	if (da == NULL || elementSize == 0) return -1;
 	if (initialCapacity == 0) initialCapacity++;
 
-	da->data = malloc (initialCapacity * sizeof (*da->data));
+	da->data = malloc (initialCapacity * elementSize);
 	da->size = 0;
 	if (da->data == NULL)
 		{
 			da->capacity = 0;
-			return;
+			da->elementSize = 0;
+			da->data = NULL;
+			return -1;
 		}
+	da->elementSize = elementSize;
 	da->capacity = initialCapacity;
-}
-
-void
-ctDynamicArrayFree (ctDynamicArray_t *da)
-{
-	if (da == NULL) return;
-	free (da->data);
-	da->data = NULL;
-	da->size = 0;
-	da->capacity = 0;
+	return 0;
 }
 
 int
 ctDynamicArrayResize (ctDynamicArray_t *da, size_t newCapacity)
 {
 	if (da == NULL) return -1;
-	void *tmp = realloc (da->data, newCapacity * sizeof (*da->data));
+	void *tmp = realloc (da->data, newCapacity * da->elementSize);
 	if (tmp == NULL) return -1;
 	da->data = tmp;
 	da->capacity = newCapacity;
@@ -58,7 +53,7 @@ ctDynamicArrayReserve (ctDynamicArray_t *da, size_t capacity)
 {
 	if (da == NULL) return -1;
 	if (da->capacity >= capacity) return 0;
-	void *tmp = realloc (da->data, capacity * sizeof (*da->data));
+	void *tmp = realloc (da->data, capacity * da->elementSize);
 	if (tmp == NULL) return -1;
 	da->data = tmp;
 	da->capacity = capacity;
@@ -71,11 +66,11 @@ ctDynamicArrayShrinkToFit (ctDynamicArray_t *da)
 	if (da == NULL) return -1;
 	if (da->capacity == da->size) return 0;
 	if (da->size == 0)
-	{
-		ctDynamicArrayFree (da);
-		return 0;
-	}
-	void *tmp = realloc (da->data, da->size * sizeof (*da->data));
+		{
+			ctDynamicArrayFree (da);
+			return 0;
+		}
+	void *tmp = realloc (da->data, da->size * da->elementSize);
 	if (tmp == NULL) return -1;
 	da->data = tmp;
 	da->capacity = da->size;
@@ -86,37 +81,48 @@ int
 ctDynamicArrayPush (ctDynamicArray_t *da, void *element)
 {
 	if (da == NULL) return -1;
-	if (da->capacity == 0) da->capacity = 1;
+	if (da->capacity == 0)
+		if (ctDynamicArrayResize (da, da->elementSize) != 0) return -1;
 	if (da->size == da->capacity)
 		if (ctDynamicArrayResize (da, da->capacity * 2) != 0) return -1;
-	da->data[da->size] = element;
+	memcpy ((char *) da->data + da->size * da->elementSize, element, da->elementSize);
 	da->size++;
 	return 0;
 }
 
-void *
-ctDynamicArrayPop (ctDynamicArray_t *da)
+int
+ctDynamicArrayPop (ctDynamicArray_t *da, void *element)
 {
-	if (da == NULL || da->size == 0) return NULL;
+	if (da == NULL || da->size == 0 || element == NULL) return -1;
 	da->size--;
-	void *tmp = da->data[da->size];
-	da->data[da->size] = NULL;
-	return tmp;
+	memcpy (element, (char *) da->data + da->size * da->elementSize, da->elementSize);
+	memset ((char *) da->data + da->size * da->elementSize, 0, da->elementSize);
+	return 0;
 }
 
 void *
 ctDynamicArrayGet (const ctDynamicArray_t *da, size_t index)
 {
 	if (da == NULL || index >= da->size) return NULL;
-	return da->data[index];
+	return (char *) da->data + index * da->elementSize;
 }
 
 int
 ctDynamicArraySet (ctDynamicArray_t *da, size_t index, void *element)
 {
 	if (da == NULL || index >= da->size) return -1;
-	da->data[index] = element;
+	memcpy ((char *) da->data + index * da->elementSize, element, da->elementSize);
 	return 0;
+}
+
+void
+ctDynamicArrayFree (ctDynamicArray_t *da)
+{
+	if (da == NULL) return;
+	free (da->data);
+	da->data = NULL;
+	da->size = 0;
+	da->capacity = 0;
 }
 
 int
@@ -132,8 +138,9 @@ ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element)
 		if (ctDynamicArrayResize (da, da->capacity * 2) != 0) return -1;
 	size_t i;
 	for (i = da->size; i > index; i--)
-		da->data[i] = da->data[i - 1];
-	da->data[index] = element;
+		memcpy ((char *) da->data + i * da->elementSize,
+				(char *) da->data + (i - 1) * da->elementSize, da->elementSize);
+	memcpy ((char *) da->data + index * da->elementSize, element, da->elementSize);
 	da->size++;
 	return 0;
 }

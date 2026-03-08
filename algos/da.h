@@ -17,13 +17,14 @@
 
 typedef struct ctDynamicArray
 {
-	void **data;
+	void *data;
 	size_t size;
 	size_t capacity;
+	size_t elementSize;
 } ctDynamicArray_t;
 
 /* Lifecycle */
-void ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity);
+void ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t elementSize);
 void ctDynamicArrayFree (ctDynamicArray_t *da);
 
 /* Capacity management */
@@ -40,6 +41,8 @@ int ctDynamicArraySet (ctDynamicArray_t *da, size_t index, void *element);
 
 int ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element);
 void *ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index);
+
+/* Add a find() function */
 
 /* State / utilities */
 size_t ctDynamicArraySize (const ctDynamicArray_t *da);
