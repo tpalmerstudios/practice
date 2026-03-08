@@ -1,40 +1,40 @@
 #include <stdio.h>
+#include <time.h>
+#include <unistd.h>
 
-int
-main ()
-{
-	int c, i, j, k, nwhite, nother;
-	int ndigit[10];
-	int maxLoop = 0;
+/******************
+ *
+ * Sudoku Solver
+ *
+ * ***************/
 
-	nwhite = nother = 0;
-	for (i = 0; i < 10; ++i)
-		ndigit[i] = 0;
+int main(int argc, char* argv[]) {
+    time_t now = time(NULL);
+    printf("%ld\n", now);
 
-	while ((c = getchar ()) != EOF)
-		{
-			if (c >= '0' && c <= '9')
-				++ndigit[c - '0'];
-			else if (c == ' ' || c == '\n' || c == '\t')
-				++nwhite;
-			else
-				++nother;
-		}
-	printf ("\nDigits\n");
-	printf (" 0 1 2 3 4 5 6 7 8 9\n");
-	for (i = 0; i < 10; ++i)
-		maxLoop = maxLoop > ndigit[i] ? maxLoop : ndigit[i];
-	for (j = 0; j < maxLoop; ++j)
-		{
-			for (k = 0; k < 10; ++k)
-				{
-					if (j < ndigit[k])
-						printf ("**");
-					else
-						printf ("  ");
-				}
-			putchar ('\n');
-		}
-	printf ("\nWhite space = %d, other = %d\n", nwhite, nother);
-	return 0;
+    sleep(2);
+
+    time_t two_secs = time(NULL);
+    printf("%ld\n", two_secs);
+
+    double diff = difftime(two_secs, now);
+    printf("diff: %f\n", diff);
+
+    char* string_now = ctime(&now);
+    printf("%s\n", string_now);
+
+    struct tm* gm_time = gmtime(&now);
+
+    printf("tm_sec: %d\n", gm_time->tm_sec);
+    printf("tm_min: %d\n", gm_time->tm_min);
+    printf("tm_hour: %d\n", gm_time->tm_hour);
+    printf("tm_mday: %d\n", gm_time->tm_mday);
+    printf("tm_mon: %d\n", gm_time->tm_mon);
+    printf("tm_year: %d\n", gm_time->tm_year);
+    printf("tm_wday: %d\n", gm_time->tm_wday);
+    printf("tm_yday: %d\n", gm_time->tm_yday);
+    printf("tm_isdst: %d\n", gm_time->tm_isdst);
+
+    return 0;
 }
+
