@@ -54,8 +54,37 @@ ctDynamicArrayResize (ctDynamicArray_t *da, size_t newCapacity)
 	if (tmp == NULL) return -1;
 	da->data = tmp;
 	da->capacity = newCapacity;
-	// Did you shrink rather than grow? Truncated
+	// Truncates to smaller sizes
 	da->size = da->size > da->capacity ? da->capacity : da->size;
+	return 0;
+}
+
+int
+ctDynamicArrayReserve (ctDynamicArray_t *da, size_t capacity)
+{
+	if (da == NULL) return -1;
+	if (da->capacity >= capacity) return 0;
+	void *tmp = realloc (da->data, capacity * sizeof (*da->data));
+	if (tmp == NULL) return -1;
+	da->data = tmp;
+	da->capacity = capacity;
+	return 0;
+}
+
+int
+ctDynamicArrayShrinkToFit (ctDynamicArray_t *da)
+{
+	if (da == NULL) return -1;
+	if (da->capacity == da->size) return 0;
+	if (da->size == 0)
+	{
+		ctDynamicArrayFree (da);
+		return 0;
+	}
+	void *tmp = realloc (da->data, da->size * sizeof (*da->data));
+	if (tmp == NULL) return -1;
+	da->data = tmp;
+	da->capacity = da->size;
 	return 0;
 }
 
@@ -72,13 +101,6 @@ ctDynamicArrayPush (ctDynamicArray_t *da, void *element)
 }
 
 void *
-ctDynamicArrayGet (const ctDynamicArray_t *da, size_t index)
-{
-	if (da == NULL || index >= da->size) return NULL;
-	return da->data[index];
-}
-
-void *
 ctDynamicArrayPop (ctDynamicArray_t *da)
 {
 	if (da == NULL || da->size == 0) return NULL;
@@ -88,35 +110,19 @@ ctDynamicArrayPop (ctDynamicArray_t *da)
 	return tmp;
 }
 
+void *
+ctDynamicArrayGet (const ctDynamicArray_t *da, size_t index)
+{
+	if (da == NULL || index >= da->size) return NULL;
+	return da->data[index];
+}
+
 int
 ctDynamicArraySet (ctDynamicArray_t *da, size_t index, void *element)
 {
 	if (da == NULL || index >= da->size) return -1;
 	da->data[index] = element;
 	return 0;
-}
-
-size_t
-ctDynamicArraySize (const ctDynamicArray_t *da)
-{
-	if (da == NULL) return 0;
-	return da->size;
-}
-size_t
-ctDynamicArrayCapacity (const ctDynamicArray_t *da)
-{
-	if (da == NULL) return 0;
-	return da->capacity;
-}
-
-void
-ctDynamicArrayClear (ctDynamicArray_t *da)
-{
-	if (da == NULL) return;
-	size_t i;
-	for (i = 0; i < da->size; i++)
-		da->data[i] = NULL;
-	da->size = 0;
 }
 
 int
@@ -142,16 +148,35 @@ void *
 ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index)
 {
 	if (da == NULL || index >= da->size) return NULL;
-	void *tmp = da->data [index];
+	void *tmp = da->data[index];
 	size_t i;
 	for (i = index; i < da->size - 1; i++)
-		da->data [i] = da->data [i + 1];
+		da->data[i] = da->data[i + 1];
 	da->size--;
-	da->data [da->size] = NULL;
+	da->data[da->size] = NULL;
 	return tmp;
 }
 
-int ctDynamicArrayReserve (ctDynamicArray_t *da, size_t capacity)
+size_t
+ctDynamicArraySize (const ctDynamicArray_t *da)
 {
-	return 0;
+	if (da == NULL) return 0;
+	return da->size;
+}
+
+size_t
+ctDynamicArrayCapacity (const ctDynamicArray_t *da)
+{
+	if (da == NULL) return 0;
+	return da->capacity;
+}
+
+void
+ctDynamicArrayClear (ctDynamicArray_t *da)
+{
+	if (da == NULL) return;
+	size_t i;
+	for (i = 0; i < da->size; i++)
+		da->data[i] = NULL;
+	da->size = 0;
 }

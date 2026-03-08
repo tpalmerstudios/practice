@@ -17,4 +17,28 @@
 
 typedef struct ctDynamicArray ctDynamicArray_t;
 
+/* Lifecycle */
+void ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity);
+void ctDynamicArrayFree (ctDynamicArray_t *da);
+
+/* Capacity management */
+int ctDynamicArrayResize (ctDynamicArray_t *da, size_t newCapacity);
+int ctDynamicArrayReserve (ctDynamicArray_t *da, size_t capacity);
+int ctDynamicArrayShrinkToFit (ctDynamicArray_t *da);
+
+/* Element operations */
+int ctDynamicArrayPush (ctDynamicArray_t *da, void *element);
+void *ctDynamicArrayPop (ctDynamicArray_t *da);
+
+void *ctDynamicArrayGet (const ctDynamicArray_t *da, size_t index);
+int ctDynamicArraySet (ctDynamicArray_t *da, size_t index, void *element);
+
+int ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element);
+void *ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index);
+
+/* State / utilities */
+size_t ctDynamicArraySize (const ctDynamicArray_t *da);
+size_t ctDynamicArrayCapacity (const ctDynamicArray_t *da);
+void ctDynamicArrayClear (ctDynamicArray_t *da);
+
 #endif // DA_H
