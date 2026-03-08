@@ -14,12 +14,6 @@
 #include "da.h"
 #include <stdlib.h>
 
-struct ctDynamicArray
-{
-	void **data;
-	size_t size;
-	size_t capacity;
-};
 void
 ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity)
 {

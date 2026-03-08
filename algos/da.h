@@ -15,7 +15,12 @@
 
 #include <stddef.h>
 
-typedef struct ctDynamicArray ctDynamicArray_t;
+typedef struct ctDynamicArray
+{
+	void **data;
+	size_t size;
+	size_t capacity;
+} ctDynamicArray_t;
 
 /* Lifecycle */
 void ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity);
