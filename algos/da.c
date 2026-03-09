@@ -82,7 +82,7 @@ ctDynamicArrayPush (ctDynamicArray_t *da, void *element)
 {
 	if (da == NULL) return -1;
 	if (da->capacity == 0)
-		if (ctDynamicArrayResize (da, da->elementSize) != 0) return -1;
+		if (ctDynamicArrayResize (da, 1) != 0) return -1;
 	if (da->size == da->capacity)
 		if (ctDynamicArrayResize (da, da->capacity * 2) != 0) return -1;
 	memcpy ((char *) da->data + da->size * da->elementSize, element, da->elementSize);
@@ -136,26 +136,25 @@ ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element)
 		}
 	if (da->size == da->capacity)
 		if (ctDynamicArrayResize (da, da->capacity * 2) != 0) return -1;
-	size_t i;
-	for (i = da->size; i > index; i--)
-		memcpy ((char *) da->data + i * da->elementSize,
-				(char *) da->data + (i - 1) * da->elementSize, da->elementSize);
+	size_t i = da->size - index - 1;
+	memmove ((char *) da->data + index * da->elementSize,
+			 (char *) da->data + (index - 1) * da->elementSize, i * da->elementSize);
 	memcpy ((char *) da->data + index * da->elementSize, element, da->elementSize);
 	da->size++;
 	return 0;
 }
 
-void *
-ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index)
+int
+ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index, void *element)
 {
-	if (da == NULL || index >= da->size) return NULL;
-	void *tmp = da->data[index];
-	size_t i;
-	for (i = index; i < da->size - 1; i++)
-		da->data[i] = da->data[i + 1];
+	if (da == NULL || index >= da->size || element == NULL) return -1;
+	size_t i = da->size - index - 1;
+	memcpy (element, (char *) da->data + index * da->elementSize, da->elementSize);
+	memmove ((char *) da->data + index * da->elementSize,
+			 (char *) da->data + (index + 1) * da->elementSize, i * da->elementSize);
 	da->size--;
-	da->data[da->size] = NULL;
-	return tmp;
+	memset ((char *) da->data + da->size * da->elementSize, 0, da->elementSize);
+	return 0;
 }
 
 size_t
@@ -177,7 +176,6 @@ ctDynamicArrayClear (ctDynamicArray_t *da)
 {
 	if (da == NULL) return;
 	size_t i;
-	for (i = 0; i < da->size; i++)
-		da->data[i] = NULL;
+	memset ((char *) da->data, 0, da->elementSize * da->size);
 	da->size = 0;
 }
