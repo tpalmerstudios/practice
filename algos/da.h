@@ -24,7 +24,7 @@ typedef struct ctDynamicArray
 } ctDynamicArray_t;
 
 /* Lifecycle */
-void ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t elementSize);
+int ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t elementSize);
 void ctDynamicArrayFree (ctDynamicArray_t *da);
 
 /* Capacity management */
@@ -34,13 +34,13 @@ int ctDynamicArrayShrinkToFit (ctDynamicArray_t *da);
 
 /* Element operations */
 int ctDynamicArrayPush (ctDynamicArray_t *da, void *element);
-void *ctDynamicArrayPop (ctDynamicArray_t *da);
+int ctDynamicArrayPop (ctDynamicArray_t *da, void *element);
 
 void *ctDynamicArrayGet (const ctDynamicArray_t *da, size_t index);
 int ctDynamicArraySet (ctDynamicArray_t *da, size_t index, void *element);
 
 int ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element);
-void *ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index);
+int ctDynamicArrayRemove (ctDynamicArray_t *da, size_t index, void *element);
 
 /* Add a find() function */
 

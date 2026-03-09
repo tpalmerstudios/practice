@@ -25,6 +25,7 @@ ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t element
 	da->size = 0;
 	if (da->data == NULL)
 		{
+			da->size = 0;
 			da->capacity = 0;
 			da->elementSize = 0;
 			da->data = NULL;
@@ -122,6 +123,7 @@ ctDynamicArrayFree (ctDynamicArray_t *da)
 	free (da->data);
 	da->data = NULL;
 	da->size = 0;
+	da->elementSize = 0;
 	da->capacity = 0;
 }
 
@@ -136,9 +138,9 @@ ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element)
 		}
 	if (da->size == da->capacity)
 		if (ctDynamicArrayResize (da, da->capacity * 2) != 0) return -1;
-	size_t i = da->size - index - 1;
-	memmove ((char *) da->data + index * da->elementSize,
-			 (char *) da->data + (index - 1) * da->elementSize, i * da->elementSize);
+	size_t i = da->size - index;
+	memmove ((char *) da->data + (index + 1) * da->elementSize,
+			 (char *) da->data + index * da->elementSize, i * da->elementSize);
 	memcpy ((char *) da->data + index * da->elementSize, element, da->elementSize);
 	da->size++;
 	return 0;
@@ -175,7 +177,6 @@ void
 ctDynamicArrayClear (ctDynamicArray_t *da)
 {
 	if (da == NULL) return;
-	size_t i;
 	memset ((char *) da->data, 0, da->elementSize * da->size);
 	da->size = 0;
 }
