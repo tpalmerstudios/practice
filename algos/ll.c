@@ -99,23 +99,23 @@ ctListInsertBack (ctLL_t *list, void *data)
 	return 0;
 }
 
-void *ctListRemove (ctLL_t *list, ctLLNode_t *node)
+int
+ctListRemove (ctLL_t *list, ctLLNode_t *node)
 {
-	/*
-	 * Check Validity
-	 * next = node->next
-	 * Go to head
-	 * while loop next != NULL
-	 * (Not found returns NULL)
-	 * if next = node
-	 * prev = current
-	 *
-	 * prev->next = next
-	 * free (node->data)
-	 * free (node);
-	 * list->size--;
-	 */
-
+	if (list == NULL || node == NULL) return -1;
+	void *next = node->next; // Ok if NULL
+	ctLLNode_t *current = list->first;
+	while (current != NULL)
+	{
+		if (current->next == node) break;
+		current = current->next;
+	}
+	if (current == NULL) return -1;
+	current->next = next;
+	free (node->data);
+	free (node);
+	list->size--;
+	return 0;
 }
 /*
 void *ctListPopFront (ctLL_t *list);
