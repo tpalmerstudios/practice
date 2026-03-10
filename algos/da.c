@@ -20,17 +20,13 @@ ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t element
 {
 	if (da == NULL || elementSize == 0) return -1;
 	if (initialCapacity == 0) initialCapacity++;
-
-	da->data = malloc (initialCapacity * elementSize);
 	da->size = 0;
+	da->capacity = 0;
+	da->elementSize = 0;
+	da->data = NULL;
+	da->data = malloc (initialCapacity * elementSize);
 	if (da->data == NULL)
-		{
-			da->size = 0;
-			da->capacity = 0;
-			da->elementSize = 0;
-			da->data = NULL;
 			return -1;
-		}
 	da->elementSize = elementSize;
 	da->capacity = initialCapacity;
 	return 0;
@@ -39,7 +35,7 @@ ctDynamicArrayInit (ctDynamicArray_t *da, size_t initialCapacity, size_t element
 int
 ctDynamicArrayResize (ctDynamicArray_t *da, size_t newCapacity)
 {
-	if (da == NULL) return -1;
+	if (da == NULL || newCapacity == 0) return -1;
 	void *tmp = realloc (da->data, newCapacity * da->elementSize);
 	if (tmp == NULL) return -1;
 	da->data = tmp;
@@ -81,7 +77,7 @@ ctDynamicArrayShrinkToFit (ctDynamicArray_t *da)
 int
 ctDynamicArrayPush (ctDynamicArray_t *da, void *element)
 {
-	if (da == NULL) return -1;
+	if (da == NULL || element == NULL) return -1;
 	if (da->capacity == 0)
 		if (ctDynamicArrayResize (da, 1) != 0) return -1;
 	if (da->size == da->capacity)
@@ -111,7 +107,7 @@ ctDynamicArrayGet (const ctDynamicArray_t *da, size_t index)
 int
 ctDynamicArraySet (ctDynamicArray_t *da, size_t index, void *element)
 {
-	if (da == NULL || index >= da->size) return -1;
+	if (da == NULL || index >= da->size || element == NULL) return -1;
 	memcpy ((char *) da->data + index * da->elementSize, element, da->elementSize);
 	return 0;
 }
@@ -130,7 +126,7 @@ ctDynamicArrayFree (ctDynamicArray_t *da)
 int
 ctDynamicArrayInsert (ctDynamicArray_t *da, size_t index, void *element)
 {
-	if (da == NULL || index > da->size) return -1;
+	if (da == NULL || index > da->size || element == NULL) return -1;
 	if (index == da->size)
 		{
 			if (ctDynamicArrayPush (da, element) != 0) return -1;
