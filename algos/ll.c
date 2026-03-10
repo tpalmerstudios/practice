@@ -13,6 +13,7 @@
 
 #include "ll.h"
 #include <stdlib.h>
+#include <string.h>
 
 ctLL_t *
 ctListInit (size_t dataSize)
@@ -47,12 +48,76 @@ ctListFree (ctLL_t *list)
 	list->size = 0;
 	free (list);
 }
+
+int
+ctListInsertFront (ctLL_t *list, void *data)
+{
+	if (list == NULL || data == NULL) return -1;
+	ctLLNode_t *node = malloc (sizeof (ctLLNode_t));
+	if (node == NULL) return -1;
+	node->data = malloc (list->dataSize);
+	if (node->data == NULL)
+		{
+			free (node);
+			return -1;
+		}
+
+	memcpy ((char *) node->data, data, list->dataSize);
+	if (list->last == NULL) list->last = node;
+	node->next = list->first;
+	list->first = node;
+	list->size++;
+	return 0;
+}
+
+int
+ctListInsertBack (ctLL_t *list, void *data)
+{
+	if (list == NULL || data == NULL) return -1;
+	ctLLNode_t *node = malloc (sizeof (ctLLNode_t));
+	if (node == NULL) return -1;
+	node->data = malloc (list->dataSize);
+	if (node->data == NULL)
+		{
+			free (node);
+			return -1;
+		}
+
+	memcpy ((char *) node->data, data, list->dataSize);
+	if (list->first == NULL) list->first = node;
+	node->next = NULL;
+	if (list->last == NULL)
+		{
+			list->last = node;
+			list->last->next = NULL;
+		}
+	else
+		list->last->next = node;
+	list->last = node;
+	list->size++;
+
+	return 0;
+}
+
+void *ctListRemove (ctLL_t *list, ctLLNode_t *node)
+{
+	/*
+	 * Check Validity
+	 * next = node->next
+	 * Go to head
+	 * while loop next != NULL
+	 * (Not found returns NULL)
+	 * if next = node
+	 * prev = current
+	 *
+	 * prev->next = next
+	 * free (node->data)
+	 * free (node);
+	 * list->size--;
+	 */
+
+}
 /*
-
-int ctListInsertFront (ctLL_t *list, void *data);
-int ctListInsertBack (ctLL_t *list, void *data);
-
-void *ctListRemove (ctLL_t *list, ctLLNode_t *node);
 void *ctListPopFront (ctLL_t *list);
 void *ctListPopBack (ctLL_t *list);
 
