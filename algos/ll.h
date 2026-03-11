@@ -35,7 +35,7 @@ void ctListFree (ctLL_t *list);
 int ctListInsertFront (ctLL_t *list, void *data);
 int ctListInsertBack (ctLL_t *list, void *data);
 
-void *ctListRemove (ctLL_t *list, ctLLNode_t *node);
+int ctListRemove (ctLL_t *list, ctLLNode_t *node);
 void *ctListPopFront (ctLL_t *list);
 void *ctListPopBack (ctLL_t *list);
 

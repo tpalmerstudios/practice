@@ -103,14 +103,29 @@ int
 ctListRemove (ctLL_t *list, ctLLNode_t *node)
 {
 	if (list == NULL || node == NULL) return -1;
-	void *next = node->next; // Ok if NULL
+	ctLLNode_t *next = node->next;
 	ctLLNode_t *current = list->first;
-	while (current != NULL)
-	{
-		if (current->next == node) break;
-		current = current->next;
-	}
-	if (current == NULL) return -1;
+	if (current == node) // The First Node
+		{
+			if (current->next != NULL) // Not the only Node
+				list->first = current->next;
+			else // The only one
+				{
+					list->first = NULL;
+					list->last = NULL;
+				}
+			free (node->data);
+			free (node);
+			list->size--;
+			return 0;
+		}
+	while (current != NULL) // Traverse
+		{
+			if (current->next == node) break;
+			current = current->next;
+		}
+	if (current == NULL) return -1; // Didn't find it
+	if (node->next == NULL) list->last = current; // Last node
 	current->next = next;
 	free (node->data);
 	free (node);
