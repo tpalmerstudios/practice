@@ -19,6 +19,7 @@ ctLL_t *
 ctListInit (size_t dataSize)
 {
 	ctLL_t *list = malloc (sizeof (ctLL_t));
+	if (list == NULL) return NULL;
 	list->first = NULL;
 	list->last = NULL;
 	list->dataSize = dataSize;
@@ -34,9 +35,9 @@ ctListFree (ctLL_t *list)
 		{
 			ctLLNode_t *head = list->first;
 			ctLLNode_t *next = head->next;
-			size_t i;
-			for (i = 0; i < list->size && head != NULL; i++)
+			while (head != NULL)
 				{
+					free (head->data);
 					free (head);
 					head = next;
 					if (head != NULL) next = head->next;
@@ -47,6 +48,27 @@ ctListFree (ctLL_t *list)
 	list->dataSize = 0;
 	list->size = 0;
 	free (list);
+}
+
+void
+ctListClear (ctLL_t *list)
+{
+	if (list == NULL) return;
+	if (list->first != NULL)
+		{
+			ctLLNode_t *head = list->first;
+			ctLLNode_t *next = head->next;
+			while (head != NULL)
+				{
+					free (head->data);
+					free (head);
+					head = next;
+					if (head != NULL) next = head->next;
+				}
+		}
+	list->first = NULL;
+	list->last = NULL;
+	list->size = 0;
 }
 
 int
@@ -124,7 +146,7 @@ ctListRemove (ctLL_t *list, ctLLNode_t *node)
 			if (current->next == node) break;
 			current = current->next;
 		}
-	if (current == NULL) return -1; // Didn't find it
+	if (current == NULL) return -1;				  // Didn't find it
 	if (node->next == NULL) list->last = current; // Last node
 	current->next = next;
 	free (node->data);
@@ -132,17 +154,134 @@ ctListRemove (ctLL_t *list, ctLLNode_t *node)
 	list->size--;
 	return 0;
 }
-/*
-void *ctListPopFront (ctLL_t *list);
-void *ctListPopBack (ctLL_t *list);
 
-ctLLNode_t ctListHead (ctLL_t *list);
-ctLLNode_t ctListEnd (ctLL_t *list);
-ctLLNode_t ctListNext (ctLLNode_t *node);
-ctLLNode_t ctListTraverse (ctLL_t *list, size_t index);
+int
+ctListPopFront (ctLL_t *list, void *data)
+{
+	if (list == NULL || data == NULL || list->first == NULL) return -1;
+	ctLLNode_t *first = list->first;
+	memcpy (data, (char *) first->data, list->dataSize);
+	if (first->next == NULL)
+		{
+			free (first->data);
+			free (first);
+			list->first = NULL;
+			list->last = NULL;
+			list->size = 0;
+			return 0;
+		}
 
-void *ctListData (ctLL_t *list);
+	ctLLNode_t *second = first->next;
+	free (first->data);
+	free (first);
+	list->first = second;
+	list->size--;
 
-size_t ctListSize (ctLL_t *list);
-int ctListIsEmpty (ctLL_t *list);
-*/
+	return 0;
+}
+
+int
+ctListPopBack (ctLL_t *list, void *data)
+{
+	if (list == NULL || data == NULL || list->first == NULL) return -1;
+	ctLLNode_t *last = NULL;
+	ctLLNode_t *prev = NULL;
+	prev = list->first;
+	if (prev->next == NULL)
+		{
+			memcpy (data, (char *) prev->data, list->dataSize);
+			free (prev->data);
+			free (prev);
+			list->first = NULL;
+			list->last = NULL;
+			list->size = 0;
+			return 0;
+		}
+	last = prev->next;
+	while (last->next != NULL)
+		{
+			prev = prev->next;
+			last = prev->next;
+		}
+	memcpy (data, (char *) last->data, list->dataSize);
+	free (last->data);
+	free (last);
+	list->last = prev;
+	prev->next = NULL;
+	list->size--;
+
+	return 0;
+}
+
+ctLLNode_t *
+ctListHead (ctLL_t *list)
+{
+	if (list == NULL || list->first == NULL) return NULL;
+	return list->first;
+}
+
+ctLLNode_t *
+ctListEnd (ctLL_t *list)
+{
+	if (list == NULL || list->last == NULL) return NULL;
+	return list->last;
+}
+
+ctLLNode_t *
+ctListNext (ctLLNode_t *node)
+{
+	if (node == NULL) return NULL;
+	return node->next;
+}
+
+int
+ctListGet (ctLL_t *list, size_t index, void *data)
+{
+	if (list == NULL || list->size == 0) return -1;
+	if (index > list->size - 1) return -1;
+	size_t i;
+	ctLLNode_t *current = list->first;
+	for (i = 0; i < index && current != NULL; i++)
+		{
+			current = current->next;
+		}
+	if (current == NULL || current->data == NULL) return -1;
+	memcpy (data, (char *) current->data, list->dataSize);
+	return 0;
+}
+
+ctLLNode_t *
+ctListFind (ctLL_t *list, void *data)
+{
+	if (list == NULL || data == NULL || list->first == NULL) return NULL;
+	ctLLNode_t *current = list->first;
+	while (current != NULL)
+		{
+			if (current->data != NULL)
+				if (memcmp (data, current->data, list->dataSize) == 0) return current;
+			current = current->next;
+		}
+	return NULL;
+}
+
+void *
+ctListData (ctLLNode_t *node)
+{
+	if (node == NULL) return NULL;
+	return node->data;
+}
+
+size_t
+ctListSize (ctLL_t *list)
+{
+	if (list == NULL) return 0;
+	return list->size;
+}
+
+int
+ctListIsEmpty (ctLL_t *list)
+{
+	if (list == NULL) return -1;
+	if (list->size == 0) return 1;
+	return 0;
+}

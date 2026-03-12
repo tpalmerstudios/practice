@@ -31,20 +31,22 @@ typedef struct ctLL
 
 ctLL_t *ctListInit (size_t dataSize);
 void ctListFree (ctLL_t *list);
+void ctListClear (ctLL_t *list);
 
 int ctListInsertFront (ctLL_t *list, void *data);
 int ctListInsertBack (ctLL_t *list, void *data);
 
 int ctListRemove (ctLL_t *list, ctLLNode_t *node);
-void *ctListPopFront (ctLL_t *list);
-void *ctListPopBack (ctLL_t *list);
+int ctListPopFront (ctLL_t *list, void *data);
+int ctListPopBack (ctLL_t *list, void *data);
 
-ctLLNode_t ctListHead (ctLL_t *list);
-ctLLNode_t ctListEnd (ctLL_t *list);
-ctLLNode_t ctListNext (ctLLNode_t *node);
-ctLLNode_t ctListTraverse (ctLL_t *list, size_t index);
+ctLLNode_t *ctListHead (ctLL_t *list);
+ctLLNode_t *ctListEnd (ctLL_t *list);
+ctLLNode_t *ctListNext (ctLLNode_t *node);
+int ctListGet (ctLL_t *list, size_t index, void *data);
+ctLLNode_t *ctListFind (ctLL_t *list, void *data);
 
-void *ctListData (ctLL_t *list);
+void *ctListData (ctLLNode_t *node);
 
 size_t ctListSize (ctLL_t *list);
 int ctListIsEmpty (ctLL_t *list);
